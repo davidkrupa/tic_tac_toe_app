@@ -7,16 +7,15 @@ const PLAYER_1 = "X";
 const PLAYER_2 = "O";
 
 function App() {
-  const [board, setBoard] = useState(
-    Array(ROW_NUM).fill(Array(COL_NUM).fill(null))
-  );
+  const [board, setBoard] = useState(getEmptyBoard(ROW_NUM, COL_NUM));
   const [currentPlayer, setCurrentPlayer] = useState(PLAYER_1);
+  const [isGameWon, setIsGameWon] = useState(false);
 
-  console.log(board);
-  console.log(board);
   console.log(board);
 
   const handleClick = (colId, rowId) => {
+    if (isGameWon) return;
+
     const updatedBoard = board.map((row, index) => {
       if (rowId !== index) return row;
       else
@@ -25,13 +24,33 @@ function App() {
           else return currentPlayer;
         });
     });
+
+    if (checkIsWinner(colId, rowId, updatedBoard)) {
+      setIsGameWon(true);
+    }
     setBoard(updatedBoard);
     setCurrentPlayer((prev) => (prev === PLAYER_1 ? PLAYER_2 : PLAYER_1));
   };
 
+  const checkIsWinner = (colId, rowId, updatedBoard) => {
+    const isWinnerRow = updatedBoard[rowId].every(
+      (el) => el === updatedBoard[rowId][colId]
+    );
+    const isWinnerCol = updatedBoard.every(
+      (el) => el[colId] === updatedBoard[rowId][colId]
+    );
+    return isWinnerRow || isWinnerCol;
+  };
+
+  const handleRestart = () => {
+    setBoard(getEmptyBoard(ROW_NUM, COL_NUM));
+    setCurrentPlayer(PLAYER_1);
+    setIsGameWon(false);
+  };
+
   return (
     <div className="app-wrapper">
-      <h1>Tic Tac Toe</h1>
+      <h1>{!isGameWon ? "Tic Tac Toe" : "You Won!"}</h1>
       {board.map((item, index) => (
         <Row
           key={index}
@@ -40,9 +59,13 @@ function App() {
           handleClick={handleClick}
         />
       ))}
-      <button>New Game</button>
+      <button onClick={() => handleRestart()}>New Game</button>
     </div>
   );
 }
+
+const getEmptyBoard = (rows, cols) => {
+  return Array(rows).fill(Array(cols).fill(null));
+};
 
 export default App;

@@ -11,10 +11,9 @@ function App() {
   const [currentPlayer, setCurrentPlayer] = useState(PLAYER_1);
   const [isGameWon, setIsGameWon] = useState(false);
 
-  console.log(board);
-
   const handleClick = (colId, rowId) => {
     if (isGameWon) return;
+    if (board[rowId][colId]) return;
 
     const updatedBoard = board.map((row, index) => {
       if (rowId !== index) return row;
@@ -33,13 +32,20 @@ function App() {
   };
 
   const checkIsWinner = (colId, rowId, updatedBoard) => {
-    const isWinnerRow = updatedBoard[rowId].every(
-      (el) => el === updatedBoard[rowId][colId]
-    );
-    const isWinnerCol = updatedBoard.every(
-      (el) => el[colId] === updatedBoard[rowId][colId]
-    );
-    return isWinnerRow || isWinnerCol;
+    const isWinnerRow = updatedBoard[rowId].every((el) => el === currentPlayer);
+    const isWinnerCol = updatedBoard.every((el) => el[colId] === currentPlayer);
+
+    const shiftDiagOne = colId - rowId;
+    const isWinnerDiagOne = updatedBoard
+      .map((el, index) => el[index + shiftDiagOne])
+      .every((el) => el === currentPlayer);
+
+    const shiftDiagTwo = rowId + colId;
+    const isWinnerDiagTwo = updatedBoard
+      .map((el, index) => el[shiftDiagTwo - index])
+      .every((el) => el === currentPlayer);
+
+    return isWinnerRow || isWinnerCol || isWinnerDiagOne || isWinnerDiagTwo;
   };
 
   const handleRestart = () => {
